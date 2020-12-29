@@ -19,7 +19,9 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  */
- 
+
+import groovy.transform.Field
+import groovy.json.JsonOutput
 import physicalgraph.*
 
 String getDriverVersion() {
@@ -45,7 +47,8 @@ metadata {
         input name: "buttonTwoEnable", type: "bool", title: "Enable Button Two", description: "Enable button two events for the hub ", required: false,  defaultValue: true
         input name: "buttonThreeEnable", type: "bool", title: "Enable Button Three", description: "Enable button three events for the hub ", required: false,  defaultValue: true
         input name: "buttonFourEnable", type: "bool", title: "Enable Button Four", description: "Enable button four events for the hub ", required: false,  defaultValue: true
-    }
+    	input "forceupdate", "bool", title: "Force Settings Update/Refresh?", description: "Toggle to force settings update", required: false
+	}
 
 	tiles {
         standardTile("button", "device.button", width: 2, height: 2) {
@@ -109,6 +112,10 @@ def parse(String description) {
     }
 
     return result
+    
+     if (!device.currentValue("supportedButtonValues")) {
+        sendEvent(name: "supportedButtonValues", value:JsonOutput.toJson(["pushed","held"]), displayed:false)
+        }
 }
 
 def buttonEvent(Integer button_pressed, isHeld = "pushed") {
@@ -333,7 +340,17 @@ def configure() {
 
 def updated() {
 	log.debug "$device.displayName updated()"
+    
+    sendEvent(name: "supportedButtonValues", value:JsonOutput.toJson(["pushed","held"]), displayed:false)
+    sendEvent(name: "numberOfButtons", value: 4, displayed: false)
+    
     configure()
+}
+
+def initialize() {
+	sendEvent(name: "numberOfButtons", value: 4, displayed: false)
+    sendEvent(name: "button", value: "pushed", data: [buttonNumber: 1], displayed: false)
+    sendEvent(name: "supportedButtonValues", value:JsonOutput.toJson(["pushed","held"]), displayed:false)     
 }
 
 private isOn(Integer scene_id) {
