@@ -33,6 +33,7 @@ metadata {
 		capability "Button"
 		capability "Configuration"
         capability "Sensor"
+		capability "Actuator"
 
 		fingerprint mfr: "001D", prod: "0261", model: "0702", deviceJoinName: "Leviton Zone Controller"
 		fingerprint mfr: "001D", prod: "0261", model: "0802", deviceJoinName: "Leviton Scene Controller"
